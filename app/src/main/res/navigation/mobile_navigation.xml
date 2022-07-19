@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.fingerassist.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_marcaciones"
+        android:name="com.example.fingerassist.ui.marcaciones.MarcacionesFragment"
+        android:label="@string/menu_marcaciones"
+        tools:layout="@layout/fragment_marcaciones" />
+
+    <fragment
+        android:id="@+id/nav_perfil"
+        android:name="com.example.fingerassist.ui.perfil.PerfilFragment"
+        android:label="@string/menu_perfil"
+        tools:layout="@layout/fragment_perfil" />
+
+    <fragment
+        android:id="@+id/nav_ajustes"
+        android:name="com.example.fingerassist.ui.ajustes.AjustesFragment"
+        android:label="@string/menu_ajustes"
+        tools:layout="@layout/fragment_ajustes" />
+
+    <fragment
+        android:id="@+id/nav_credits"
+        android:name="com.example.fingerassist.ui.credits.CreditsFragment"
+        android:label="@string/menu_credits"
+        tools:layout="@layout/fragment_credits" />
+
+
+</navigation>
