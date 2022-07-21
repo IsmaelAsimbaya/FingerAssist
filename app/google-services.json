@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1062134884035",
+    "project_id": "fingerassist-f0db3",
+    "storage_bucket": "fingerassist-f0db3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062134884035:android:415f6e859b1f3065a8a476",
+        "android_client_info": {
+          "package_name": "com.example.fingerasist_splash_login"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062134884035-7sb5ve8bnm59ukr4gko0pu35dn7vnkec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhC0mol2kyeRwoR9hAt3UacpH-NPOfMd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062134884035-7sb5ve8bnm59ukr4gko0pu35dn7vnkec.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062134884035:android:e8505d8b6e116d81a8a476",
+        "android_client_info": {
+          "package_name": "com.example.fingerassist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062134884035-7sb5ve8bnm59ukr4gko0pu35dn7vnkec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhC0mol2kyeRwoR9hAt3UacpH-NPOfMd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062134884035-7sb5ve8bnm59ukr4gko0pu35dn7vnkec.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
