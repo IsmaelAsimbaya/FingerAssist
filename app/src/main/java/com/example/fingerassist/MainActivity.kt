@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         val provider = intent.getStringExtra("provider")
         Toast.makeText(this,"name: $name, provider: $provider" ,Toast.LENGTH_SHORT).show()
 
+
         binding.navView.getHeaderView(1)
     }
 
