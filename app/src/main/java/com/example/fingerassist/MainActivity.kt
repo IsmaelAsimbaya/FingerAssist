@@ -2,6 +2,7 @@ package com.example.fingerassist
 
 import android.os.Bundle
 import android.view.Menu
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -46,6 +47,12 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        val name = intent.getStringExtra("email")
+        val provider = intent.getStringExtra("provider")
+        Toast.makeText(this,"name: $name, provider: $provider" ,Toast.LENGTH_SHORT).show()
+
+        binding.navView.getHeaderView(1)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
