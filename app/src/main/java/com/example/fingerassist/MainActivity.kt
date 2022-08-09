@@ -2,8 +2,9 @@ package com.example.fingerassist
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -13,6 +14,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fingerassist.databinding.ActivityMainBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 enum class ProviderType(){
     BASIC
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +53,28 @@ class MainActivity : AppCompatActivity() {
 
         val name = intent.getStringExtra("email")
         val provider = intent.getStringExtra("provider")
-        Toast.makeText(this,"name: $name, provider: $provider" ,Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this,"name: $name, provider: $provider" ,Toast.LENGTH_SHORT).show()
+        cargaDatosUsuario(name)
 
 
-        binding.navView.getHeaderView(1)
+       val hView : View = navView.getHeaderView(0)
+       val correo : TextView = hView.findViewById(R.id.userName)
+       correo.setText(name)
+
+
     }
+
+    private fun cargaDatosUsuario(email: String?){
+        if (email != null) {
+            db.collection("users").document(email).get().addOnSuccessListener {
+                println(it.get("name") as String?)
+            }
+        }
+    }
+
+    //metodo para setear datos en NavView
+
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
