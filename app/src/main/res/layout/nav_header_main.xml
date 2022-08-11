@@ -17,7 +17,7 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="@string/nav_header_title"
         android:textColor="#090909"
-        android:textSize="20sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/userId"
         app:layout_constraintStart_toEndOf="@+id/profilePic" />
 
@@ -29,14 +29,14 @@
         android:layout_marginBottom="24dp"
         android:text="@string/nav_header_subtitle"
         android:textColor="#000000"
-        android:textSize="14sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/profilePic" />
 
     <ImageView
         android:id="@+id/profilePic"
-        android:layout_width="114dp"
-        android:layout_height="105dp"
+        android:layout_width="81dp"
+        android:layout_height="79dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"

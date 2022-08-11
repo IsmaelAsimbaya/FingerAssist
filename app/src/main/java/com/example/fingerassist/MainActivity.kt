@@ -52,28 +52,23 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         val name = intent.getStringExtra("email")
-        val provider = intent.getStringExtra("provider")
+        //val provider = intent.getStringExtra("provider")
         //Toast.makeText(this,"name: $name, provider: $provider" ,Toast.LENGTH_SHORT).show()
-        cargaDatosUsuario(name)
-
-
-       val hView : View = navView.getHeaderView(0)
-       val correo : TextView = hView.findViewById(R.id.userName)
-       correo.setText(name)
-
+        cargaDatosUsuario(name,navView)
 
     }
 
-    private fun cargaDatosUsuario(email: String?){
+    private fun  cargaDatosUsuario(email: String?, navView: NavigationView){
+        val hView : View = navView.getHeaderView(0)
+        val correo : TextView = hView.findViewById(R.id.userName)
+        correo.setText(email)
         if (email != null) {
             db.collection("users").document(email).get().addOnSuccessListener {
-                println(it.get("name") as String?)
+                val id : TextView = hView.findViewById(R.id.userId)
+                id.setText(it.get("ci") as String?)
             }
         }
     }
-
-    //metodo para setear datos en NavView
-
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
