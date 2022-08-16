@@ -3,6 +3,7 @@ package com.example.fingerassist
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
@@ -15,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fingerassist.databinding.ActivityMainBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
 
 enum class ProviderType(){
     BASIC
@@ -64,8 +66,12 @@ class MainActivity : AppCompatActivity() {
         correo.setText(email)
         if (email != null) {
             db.collection("users").document(email).get().addOnSuccessListener {
+
                 val id : TextView = hView.findViewById(R.id.userId)
                 id.setText(it.get("ci") as String?)
+
+                val img : ImageView = hView.findViewById(R.id.profilePic)
+                Picasso.get().load(it.get("img") as String?).into(img)
             }
         }
     }
