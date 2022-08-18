@@ -19,4 +19,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/marc_ingreso"
+        android:layout_width="113dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="88dp"
+        android:layout_marginBottom="124dp"
+        android:text="Ingreso"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/marc_salida"
+        android:layout_width="113dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="124dp"
+        android:text="Salida"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/marc_ingreso" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
