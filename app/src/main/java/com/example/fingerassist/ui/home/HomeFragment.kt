@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.fingerassist.databinding.FragmentHomeBinding
@@ -39,9 +40,21 @@ class HomeFragment : Fragment() {
             textView.text = it
         }
 
+        binding.marcIngreso.setOnClickListener{
+            authenticate {
+                if (it){
+                    textView.text = "Ingreso registrado"
+                }
+            }
+        }
 
-
-
+        binding.marcSalida.setOnClickListener{
+            authenticate {
+                if (it){
+                    textView.text = "Salida registrado"
+                }
+            }
+        }
 
         return root
     }
@@ -49,14 +62,32 @@ class HomeFragment : Fragment() {
     private fun setupAuth() {
         if (BiometricManager.from(requireContext()).canAuthenticate(
                 BiometricManager.Authenticators.BIOMETRIC_STRONG
-                        or BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS){
+                        or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            ) == BiometricManager.BIOMETRIC_SUCCESS
+        ) {
             canAuthenticate = true
             promptInfo = BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Esperando confirmacion...")
                 .setSubtitle("Confirma utilizando su huella")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG
-                        or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
                 .build()
+        }
+    }
+
+    private fun authenticate(auth: (auth: Boolean) -> Unit) {
+        if (canAuthenticate) {
+            BiometricPrompt(this, ContextCompat.getMainExecutor(requireContext()),
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        auth(true)
+                    }
+                }).authenticate(promptInfo)
+        } else {
+            auth(true)
         }
     }
 
