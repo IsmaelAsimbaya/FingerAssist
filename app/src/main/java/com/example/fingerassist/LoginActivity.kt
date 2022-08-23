@@ -13,10 +13,14 @@ class LoginActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        supportActionBar?.hide()
 
         //setup
         setup()
@@ -24,7 +28,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setup(){
         title = "Autenticacion"
-
+        /*
         binding.singUpButton.setOnClickListener{
             if (binding.editTextTextEmailAddress.text.isNotEmpty() && binding.editTextTextPassword.text.isNotEmpty()){
                 FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.editTextTextEmailAddress.text.toString(),
@@ -36,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+        }*/
 
         binding.logginButton.setOnClickListener{
             if (binding.editTextTextEmailAddress.text.isNotEmpty() && binding.editTextTextPassword.text.isNotEmpty()){

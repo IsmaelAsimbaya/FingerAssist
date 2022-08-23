@@ -22,4 +22,5 @@
     <style name="Theme.FingerAssist.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.FingerAssist.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

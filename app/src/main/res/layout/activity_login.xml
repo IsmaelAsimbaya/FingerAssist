@@ -56,21 +56,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:srcCompat="@android:drawable/ic_menu_info_details" />
+            app:srcCompat="@drawable/verified_user" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="41dp"
             android:layout_weight="1"
-            android:text="Introduzca su nombre y usuario" />
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
+            android:text="Introduzca su nombre y usuario y contraseña" />
+
+
 
     </LinearLayout>
 
@@ -108,11 +104,7 @@
             android:hint="Contraseña"
             android:inputType="textPassword" />
 
-        <Button
-            android:id="@+id/singUpButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Registrar" />
+
 
         <Button
             android:id="@+id/logginButton"
