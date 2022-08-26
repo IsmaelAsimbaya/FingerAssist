@@ -3,6 +3,7 @@ package com.example.fingerassist
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.ImageView
@@ -20,11 +21,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import com.example.fingerassist.Utils.FingerAssist.Companion.sp
 import com.example.fingerassist.databinding.ActivityMainBinding
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
 import com.squareup.picasso.Picasso
 import java.util.jar.Manifest
 
@@ -32,7 +36,7 @@ enum class ProviderType() {
     BASIC
 }
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -62,16 +66,14 @@ class MainActivity : AppCompatActivity(){
                 R.id.nav_marcaciones,
                 R.id.nav_perfil,
                 R.id.nav_ajustes,
-                R.id.nav_credits
+                R.id.nav_credits,
+                R.id.nav_logout
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val name = intent.getStringExtra("email")
-        //val provider = intent.getStringExtra("provider")
-        //Toast.makeText(this,"name: $name, provider: $provider" ,Toast.LENGTH_SHORT).show()
-        cargaDatosUsuario(name, navView)
+        cargaDatosUsuario(sp.getName(), navView)
 
     }
 
@@ -79,16 +81,28 @@ class MainActivity : AppCompatActivity(){
         val hView: View = navView.getHeaderView(0)
         val correo: TextView = hView.findViewById(R.id.userName)
         correo.setText(email)
-        if (email != null) {
-            db.collection("users").document(email).get().addOnSuccessListener {
+        db.collection("users").document(email!!).get().addOnSuccessListener {
 
-                val id: TextView = hView.findViewById(R.id.userId)
-                id.setText(it.get("ci") as String?)
+            val id: TextView = hView.findViewById(R.id.userId)
+            id.setText(it.get("ci") as String?)
 
-                val img: ImageView = hView.findViewById(R.id.profilePic)
-                Picasso.get().load(it.get("img") as String?).into(img)
-            }
+            val img: ImageView = hView.findViewById(R.id.profilePic)
+            Picasso.get().load(it.get("img") as String?).into(img)
         }
+
+        db.collection("users").document(sp.getName())
+            .collection("horario").document("Administrativo")
+            .get().addOnSuccessListener {
+                val coord: GeoPoint = it.get("lugar") as GeoPoint
+                val lat: Double = coord.latitude
+                Log.println(Log.DEBUG, "localizacion", "latitud$lat")
+                val lng: Double = coord.longitude
+                Log.println(Log.DEBUG, "localizacion", "longitud$lng")
+                with(sp.getSharedPreference().edit()) {
+                    putString("lat", lat.toString())
+                    putString("lng", lng.toString())
+                }
+            }
     }
 
 

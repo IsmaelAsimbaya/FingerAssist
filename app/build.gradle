@@ -61,6 +61,10 @@ dependencies {
 
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.8'
+
     //Biometrics
     implementation "androidx.biometric:biometric-ktx:1.2.0-alpha04"
+
+    // Notificaciones
+    implementation 'androidx.core:core:1.8.0'
 }

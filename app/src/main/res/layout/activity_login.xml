@@ -113,7 +113,7 @@
             android:text="Acceder" />
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/recordarSesion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Recordarme" />

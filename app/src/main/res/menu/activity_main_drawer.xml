@@ -27,6 +27,10 @@
             android:id="@+id/nav_credits"
             android:icon="@drawable/info"
             android:title="@string/menu_credits" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/power_settings_new"
+            android:title="@string/menu_logout" />
 
     </group>
 

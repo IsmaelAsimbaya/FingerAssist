@@ -12,6 +12,7 @@
     <string name="menu_perfil">Perfil</string>
     <string name="menu_ajustes">Ajustes</string>
     <string name="menu_credits">Acerca de</string>
+    <string name="menu_logout">Cerrar Sesion</string>
     <string name="title_activity_maps">MapsActivity</string>
 
 </resources>

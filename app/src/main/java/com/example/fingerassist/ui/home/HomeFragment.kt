@@ -1,32 +1,40 @@
 package com.example.fingerassist.ui.home
 
+import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.example.fingerassist.MapsActivity
 import com.example.fingerassist.R
+import com.example.fingerassist.Utils.FingerAssist.Companion.sp
 import com.example.fingerassist.databinding.FragmentHomeBinding
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.firestore.GeoPoint
 
-class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,GoogleMap.OnMyLocationClickListener {
+class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
+    GoogleMap.OnMyLocationClickListener {
 
     private var _binding: FragmentHomeBinding? = null
+    private val db = FirebaseFirestore.getInstance()
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -35,6 +43,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
     private lateinit var map: GoogleMap
+
+    //private val lugarMarcacion = LatLng(sp.getSharedPreference().getString("lat","")!!.toDouble(),sp.getSharedPreference().getString("lng","")!!.toDouble())
+    private val lugarMarcacion = LatLng(0.0,0.0)
 
     companion object {
         const val REQUEST_CODE_LOCATION = 0
@@ -51,33 +62,37 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        setupAuth()
-        createMap()
 
         val textView: TextView = binding.textHome
         homeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
 
-        binding.marcIngreso.setOnClickListener{
+        binding.marcIngreso.setOnClickListener {
             authenticate {
-                if (it){
+                if (it) {
                     textView.text = "Ingreso registrado"
                 }
             }
         }
 
-        binding.marcSalida.setOnClickListener{
+        binding.marcSalida.setOnClickListener {
             authenticate {
-                if (it){
+                if (it) {
                     textView.text = "Salida registrado"
                 }
             }
         }
 
+        //cargar biometricas
+        setupAuth()
+        //cargar mapa
+        createMap()
+
         return root
     }
 
+    //biometricas
     private fun setupAuth() {
         if (BiometricManager.from(requireContext()).canAuthenticate(
                 BiometricManager.Authenticators.BIOMETRIC_STRONG
@@ -110,6 +125,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         }
     }
 
+    //Mapa
     private fun createMap() {
         val mapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -118,6 +134,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        createMarkerLugar_de_Marcacion(lugarMarcacion)
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
         enableLocation()
@@ -132,6 +149,23 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     private fun enableLocation() {
         if (!::map.isInitialized) return
         if (isLocationPermissionGranted()) {
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return
+            }
             map.isMyLocationEnabled = true
         } else {
             requestLocationPermision()
@@ -144,7 +178,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 android.Manifest.permission.ACCESS_FINE_LOCATION
             )
         ) {
-            Toast.makeText(requireContext(), "Ve a ajustes y acepta los permisos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Ve a ajustes y acepta los permisos",
+                Toast.LENGTH_SHORT
+            ).show()
         } else {
             ActivityCompat.requestPermissions(
                 requireContext() as Activity,
@@ -161,13 +199,34 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        when(requestCode){
-            MapsActivity.REQUEST_CODE_LOCATION -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        when (requestCode) {
+            MapsActivity.REQUEST_CODE_LOCATION -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return
+                }
                 map.isMyLocationEnabled = true
-            }else{
-                Toast.makeText(requireContext(), "Para activar la localizacion ve a ajustes y acpeta los permisos", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Para activar la localizacion ve a ajustes y acpeta los permisos",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            else ->{}
+            else -> {}
         }
     }
 
@@ -187,8 +246,27 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
     override fun onMyLocationClick(p0: Location) {
-        Toast.makeText(requireContext(), "Estas en ${p0.latitude}, ${p0.longitude}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            requireContext(),
+            "Estas en ${p0.latitude}, ${p0.longitude}",
+            Toast.LENGTH_SHORT
+        ).show()
     }
+
+    private fun createMarkerLugar_de_Marcacion(coordinates: LatLng) {
+        Log.println(Log.DEBUG,"localizacion","posicion$coordinates")
+        val marker: MarkerOptions =
+            MarkerOptions().position(coordinates).title("Lugar de Marcacion")
+        map.addMarker(marker)
+        map.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(coordinates, 18f),
+            4000,
+            null
+        )
+    }
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
