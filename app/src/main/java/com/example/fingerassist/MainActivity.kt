@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun cargaDatosUsuario(email: String?, navView: NavigationView) {
+    private suspend fun cargaDatosUsuario(email: String?, navView: NavigationView) {
         val hView: View = navView.getHeaderView(0)
         val correo: TextView = hView.findViewById(R.id.userName)
         correo.setText(email)
@@ -91,13 +91,11 @@ class MainActivity : AppCompatActivity() {
             Picasso.get().load(it.get("img") as String?).into(img)
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            cargaUbicacion()
-        }
+        cargaUbicacion()
 
     }
 
-    private fun cargaUbicacion() {
+    private suspend fun cargaUbicacion() {
         db.collection("users").document(sp.getName())
             .collection("horario").document("Administrativo")
             .get().addOnSuccessListener {
@@ -106,10 +104,8 @@ class MainActivity : AppCompatActivity() {
                 Log.println(Log.DEBUG, "localizacion", "latitud$lat")
                 val lng: String = coord.longitude.toString()
                 Log.println(Log.DEBUG, "localizacion", "longitud$lng")
-                with(sp.getSharedPreference().edit()) {
-                    putString("lat", lat)
-                    putString("lng", lng)
-                }.apply()
+                sp.saveLat(lat)
+                sp.saveLng(lng)
             }
 
     }

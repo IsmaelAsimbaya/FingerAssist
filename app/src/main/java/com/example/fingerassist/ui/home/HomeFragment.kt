@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -84,7 +85,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         //cargar biometricas
         setupAuth()
         //cargar mapa
-        createMap()
+        Handler().postDelayed({
+            createMap()
+        },2000)
+
 
 
         return root
@@ -252,11 +256,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
     private fun cargaLugar() :LatLng{
-        val lat = sp.getSharedPreference().getString("lat","0.0")
+        val lat = sp.getLat()
         Log.println(Log.DEBUG, "test", "lat$lat")
-        val lng = sp.getSharedPreference().getString("lng","0.0")
+        val lng = sp.getLng()
         Log.println(Log.DEBUG, "test", "lng$lng")
-        return LatLng(lat!!.toDouble() ,lng!!.toDouble())
+        return LatLng(lat.toDouble() ,lng.toDouble())
     }
 
     private fun createMarkerLugar_de_Marcacion(coordinates: LatLng) {

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
+import com.example.fingerassist.Utils.Preferences
 import com.example.fingerassist.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -23,7 +24,6 @@ class LoginActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        //val sp = getSharedPreferences("sessions", Context.MODE_PRIVATE)
         checkLogin()
         setup()
     }
@@ -33,28 +33,22 @@ class LoginActivity : AppCompatActivity() {
 
         binding.logginButton.setOnClickListener {
             if (binding.editTextTextEmailAddress.text.isNotEmpty() && binding.editTextTextPassword.text.isNotEmpty()) {
-                login(binding.editTextTextEmailAddress.text.toString(),binding.editTextTextPassword.text.toString(), sp.getSharedPreference())
+                login(binding.editTextTextEmailAddress.text.toString(),binding.editTextTextPassword.text.toString(), sp)
             }
         }
     }
 
-    private fun login(user: String, password: String, sp: SharedPreferences) {
+    private fun login(user: String, password: String, sp: Preferences) {
 
         FirebaseAuth.getInstance().signInWithEmailAndPassword(user, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    with(sp.edit()) {
-                        putString("user", user)
-                    }.apply()
+                    sp.saveUser(user)
                     if (binding.recordarSesion.isChecked) {
-                        with(sp.edit()) {
-                            putString("password", password)
-                            putBoolean("remember",true)
-                        }.apply()
+                        //putString("password", password)
+                        sp.saveRemember(true)
                     } else {
-                        with(sp.edit()) {
-                            putBoolean("remember",false)
-                        }.apply()
+                        sp.saveRemember(false)
                     }
                     showHome()
                     finish()
@@ -65,7 +59,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun checkLogin() {
-        if (sp.getSharedPreference().getBoolean("remember",false)){
+        if (sp.getRemember()){
             showHome()
             finish()
         }
