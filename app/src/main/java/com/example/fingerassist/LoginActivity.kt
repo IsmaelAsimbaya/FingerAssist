@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
                             putBoolean("remember",false)
                         }.apply()
                     }
-                    showHome(it.result?.user?.email ?: "", ProviderType.BASIC)
+                    showHome()
                     finish()
                 } else {
                     showAlert()
@@ -66,7 +66,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun checkLogin() {
         if (sp.getSharedPreference().getBoolean("remember",false)){
-            showHome(sp.getSharedPreference().getString("user",""), ProviderType.BASIC)
+            showHome()
             finish()
         }
     }
@@ -80,11 +80,8 @@ class LoginActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun showHome(email: String?, provider: ProviderType) {
-        val mainIntent = Intent(this, MainActivity::class.java).apply {
-            putExtra("email", email)
-            putExtra("provider", provider.name)
-        }
+    private fun showHome() {
+        val mainIntent = Intent(this, MainActivity::class.java)
         startActivity(mainIntent)
     }
 }

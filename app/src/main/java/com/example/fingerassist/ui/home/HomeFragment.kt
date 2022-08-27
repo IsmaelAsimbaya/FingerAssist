@@ -44,9 +44,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
 
     private lateinit var map: GoogleMap
 
-    //private val lugarMarcacion = LatLng(sp.getSharedPreference().getString("lat","")!!.toDouble(),sp.getSharedPreference().getString("lng","")!!.toDouble())
-    private val lugarMarcacion = LatLng(0.0,0.0)
-
     companion object {
         const val REQUEST_CODE_LOCATION = 0
     }
@@ -88,6 +85,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         setupAuth()
         //cargar mapa
         createMap()
+
 
         return root
     }
@@ -134,7 +132,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        createMarkerLugar_de_Marcacion(lugarMarcacion)
+        createMarkerLugar_de_Marcacion(cargaLugar())
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
         enableLocation()
@@ -253,6 +251,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         ).show()
     }
 
+    private fun cargaLugar() :LatLng{
+        val lat = sp.getSharedPreference().getString("lat","0.0")
+        Log.println(Log.DEBUG, "test", "lat$lat")
+        val lng = sp.getSharedPreference().getString("lng","0.0")
+        Log.println(Log.DEBUG, "test", "lng$lng")
+        return LatLng(lat!!.toDouble() ,lng!!.toDouble())
+    }
+
     private fun createMarkerLugar_de_Marcacion(coordinates: LatLng) {
         Log.println(Log.DEBUG,"localizacion","posicion$coordinates")
         val marker: MarkerOptions =
@@ -264,8 +270,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
             null
         )
     }
-
-
 
 
     override fun onDestroyView() {

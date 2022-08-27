@@ -67,4 +67,7 @@ dependencies {
 
     // Notificaciones
     implementation 'androidx.core:core:1.8.0'
+
+    //corrutinas
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3")
 }

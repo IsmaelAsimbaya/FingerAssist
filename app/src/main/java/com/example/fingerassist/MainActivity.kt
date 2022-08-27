@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
 import com.example.fingerassist.databinding.ActivityMainBinding
 import com.google.android.gms.maps.GoogleMap
@@ -30,11 +31,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.jar.Manifest
-
-enum class ProviderType() {
-    BASIC
-}
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,7 +72,9 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        cargaDatosUsuario(sp.getName(), navView)
+        lifecycleScope.launch(Dispatchers.IO) {
+            cargaDatosUsuario(sp.getName(), navView)
+        }
 
     }
 
@@ -90,19 +91,27 @@ class MainActivity : AppCompatActivity() {
             Picasso.get().load(it.get("img") as String?).into(img)
         }
 
+        lifecycleScope.launch(Dispatchers.IO) {
+            cargaUbicacion()
+        }
+
+    }
+
+    private fun cargaUbicacion() {
         db.collection("users").document(sp.getName())
             .collection("horario").document("Administrativo")
             .get().addOnSuccessListener {
                 val coord: GeoPoint = it.get("lugar") as GeoPoint
-                val lat: Double = coord.latitude
+                val lat: String = coord.latitude.toString()
                 Log.println(Log.DEBUG, "localizacion", "latitud$lat")
-                val lng: Double = coord.longitude
+                val lng: String = coord.longitude.toString()
                 Log.println(Log.DEBUG, "localizacion", "longitud$lng")
                 with(sp.getSharedPreference().edit()) {
-                    putString("lat", lat.toString())
-                    putString("lng", lng.toString())
-                }
+                    putString("lat", lat)
+                    putString("lng", lng)
+                }.apply()
             }
+
     }
 
 
