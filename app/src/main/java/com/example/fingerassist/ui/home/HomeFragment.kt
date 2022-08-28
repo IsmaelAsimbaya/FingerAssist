@@ -74,7 +74,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
-        obtenerUbicacion()
 
         val textView: TextView = binding.textHome
         homeViewModel.text.observe(viewLifecycleOwner) {
@@ -82,47 +81,52 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         }
 
         binding.marcIngreso.setOnClickListener {
-            obtenerUbicacion()
-            if (validarLugarMarcacion(ubicacion)) {
-                authenticate {
-                    if (it) {
-                        textView.text = "Ingreso registrado"
+            obtenerUbicacion(object : CallBack {
+                override fun onCallBack(value: Boolean) {
+                    if (value) {
+                        if (validarLugarMarcacion(ubicacion)) {
+                            authenticate {
+                                if (it) {
+                                    textView.text = "Ingreso registrado"
+                                }
+                            }
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "No se encuentra en el area designada",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "No se encuentra en el area designada",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
+            })
         }
 
         binding.marcSalida.setOnClickListener {
-            obtenerUbicacion()
-            if (validarLugarMarcacion(ubicacion)) {
-                authenticate {
-                    if (it) {
-                        textView.text = "Salida registrado"
+            obtenerUbicacion(object : CallBack {
+                override fun onCallBack(value: Boolean) {
+                    if (value) {
+                        if (validarLugarMarcacion(ubicacion)) {
+                            authenticate {
+                                if (it) {
+                                    textView.text = "Salida registrado"
+                                }
+                            }
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "No se encuentra en el area designada",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "No se encuentra en el area designada",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
+            })
         }
 
         //cargar biometricas
         setupAuth()
         //cargar mapa
-        /*Handler().postDelayed({
-            createMap()
-        }, 2000)*/
         cargaCoordenadas(object : CallBack {
             override fun onCallBack(value: Boolean) {
                 if (value) {
@@ -299,8 +303,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
     private fun cargaCoordenadas(myCallBack: CallBack) {
-        //private fun cargaUbicacion() {
-        var aux = false
+        var aux: Boolean
 
         db.collection("users").document(sp.getName())
             .collection("horario").document("Administrativo")
@@ -322,15 +325,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                     myCallBack.onCallBack(false)
                 }
             }
-
     }
 
     private fun cargaLugar(): LatLng {
-        val lat = sp.getLat()
-        Log.println(Log.DEBUG, "test", "lat$lat")
-        val lng = sp.getLng()
-        Log.println(Log.DEBUG, "test", "lng$lng")
-        return LatLng(lat.toDouble(), lng.toDouble())
+        return LatLng(sp.getLat().toDouble(), sp.getLng().toDouble())
     }
 
     private fun cargaAxis1(): LatLng {
@@ -346,9 +344,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
     private fun cargaAxis4(): LatLng {
-        val lat = sp.getAxis4Lat().toDouble()
-        val lng = sp.getAxis4Lng().toDouble()
-        return LatLng(lat, lng)
+        return LatLng(sp.getAxis4Lat().toDouble(), sp.getAxis4Lng().toDouble())
     }
 
     private fun createMarkerLugar_de_Marcacion(coordinates: LatLng) {
@@ -388,13 +384,20 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
     @SuppressLint("MissingPermission")
-    private fun obtenerUbicacion() {
+    private fun obtenerUbicacion(myCallBack: CallBack) {
+        var aux: Boolean
         try {
             if (isLocationPermissionGranted()) {
                 val locationResult = fusedLocationProviderClient.lastLocation
                 locationResult.addOnCompleteListener(requireContext() as Activity) { task ->
                     if (task.isSuccessful) {
                         ubicacion = LatLng(task.result.latitude, task.result.longitude)
+                        aux = true
+                        if (aux) {
+                            myCallBack.onCallBack(true)
+                        } else {
+                            myCallBack.onCallBack(false)
+                        }
                     } else {
                         Log.d("", "Current location is null. Using defaults.")
                         Log.e("", "Exception: %s", task.exception)
