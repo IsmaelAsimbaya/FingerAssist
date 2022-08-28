@@ -1,14 +1,10 @@
 package com.example.fingerassist
 
-import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -17,24 +13,14 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.view.get
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
 import com.example.fingerassist.databinding.ActivityMainBinding
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
-import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity() {
 
@@ -79,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private suspend fun cargaDatosUsuario(email: String?, navView: NavigationView) {
+    private fun cargaDatosUsuario(email: String?, navView: NavigationView) {
         val hView: View = navView.getHeaderView(0)
         val correo: TextView = hView.findViewById(R.id.userName)
         correo.setText(email)
@@ -92,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             Picasso.get().load(it.get("img") as String?).into(img)
         }
 
-        /*cargaUbicacion(object : CallBack{
+        /*cargaCoordenadas(object : CallBack{
             override fun onCallBack(value: Boolean) {
                 if (value){
 
@@ -101,13 +87,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })*/
-        cargaUbicacion()
+        //cargaUbicacion()
 
     }
 
-    //private fun cargaUbicacion(myCallBack: CallBack) {
-    private fun cargaUbicacion() {
-        //var aux = false
+    /*private fun cargaCoordenadas(myCallBack: CallBack) {
+    //private fun cargaUbicacion() {
+        var aux = false
         db.collection("users").document(sp.getName())
             .collection("horario").document("Administrativo")
             .get().addOnSuccessListener {
@@ -121,15 +107,15 @@ class MainActivity : AppCompatActivity() {
                 sp.saveAxis2(setOf(axis2.latitude.toString(), axis2.longitude.toString()))
                 sp.saveAxis3(setOf(axis3.latitude.toString(), axis3.longitude.toString()))
                 sp.saveAxis4(setOf(axis4.latitude.toString(), axis4.longitude.toString()))
-                //aux = true
+                aux = true
             }
-        /*if (aux){
+        if (aux){
             myCallBack.onCallBack(true)
         }else{
             myCallBack.onCallBack(false)
-        }*/
+        }
 
-    }
+    }*/
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.fingerassist.CallBack
 import com.example.fingerassist.MapsActivity
 import com.example.fingerassist.R
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
@@ -52,7 +53,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     private lateinit var poligono: Polygon
     private lateinit var lugarMarcacion: LatLng
     private lateinit var ubicacion: LatLng
-    private lateinit var fusedLocationProviderClient:FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private lateinit var map: GoogleMap
 
@@ -71,7 +72,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
         obtenerUbicacion()
 
         val textView: TextView = binding.textHome
@@ -81,28 +83,36 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
 
         binding.marcIngreso.setOnClickListener {
             obtenerUbicacion()
-            if (validarLugarMarcacion(ubicacion)){
+            if (validarLugarMarcacion(ubicacion)) {
                 authenticate {
                     if (it) {
                         textView.text = "Ingreso registrado"
                     }
                 }
-            }else{
-                Toast.makeText(requireContext(), "No se encuentra en el area designada", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "No se encuentra en el area designada",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
         }
 
         binding.marcSalida.setOnClickListener {
             obtenerUbicacion()
-            if (validarLugarMarcacion(ubicacion)){
+            if (validarLugarMarcacion(ubicacion)) {
                 authenticate {
                     if (it) {
                         textView.text = "Salida registrado"
                     }
                 }
-            }else{
-                Toast.makeText(requireContext(), "No se encuentra en el area designada", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "No se encuentra en el area designada",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
         }
@@ -110,11 +120,16 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         //cargar biometricas
         setupAuth()
         //cargar mapa
-        Handler().postDelayed({
+        /*Handler().postDelayed({
             createMap()
-        }, 2000)
-
-
+        }, 2000)*/
+        cargaCoordenadas(object : CallBack {
+            override fun onCallBack(value: Boolean) {
+                if (value) {
+                    createMap()
+                }
+            }
+        })
 
         return root
     }
@@ -283,6 +298,33 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         ).show()
     }
 
+    private fun cargaCoordenadas(myCallBack: CallBack) {
+        //private fun cargaUbicacion() {
+        var aux = false
+
+        db.collection("users").document(sp.getName())
+            .collection("horario").document("Administrativo")
+            .get().addOnSuccessListener {
+                val coord: GeoPoint = it.get("lugar") as GeoPoint
+                val axis1: GeoPoint = it.get("axis1") as GeoPoint
+                val axis2: GeoPoint = it.get("axis2") as GeoPoint
+                val axis3: GeoPoint = it.get("axis3") as GeoPoint
+                val axis4: GeoPoint = it.get("axis4") as GeoPoint
+                sp.saveLatLng(setOf(coord.latitude.toString(), coord.longitude.toString()))
+                sp.saveAxis1(setOf(axis1.latitude.toString(), axis1.longitude.toString()))
+                sp.saveAxis2(setOf(axis2.latitude.toString(), axis2.longitude.toString()))
+                sp.saveAxis3(setOf(axis3.latitude.toString(), axis3.longitude.toString()))
+                sp.saveAxis4(setOf(axis4.latitude.toString(), axis4.longitude.toString()))
+                aux = true
+                if (aux) {
+                    myCallBack.onCallBack(true)
+                } else {
+                    myCallBack.onCallBack(false)
+                }
+            }
+
+    }
+
     private fun cargaLugar(): LatLng {
         val lat = sp.getLat()
         Log.println(Log.DEBUG, "test", "lat$lat")
@@ -338,21 +380,21 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         return poligono
     }
 
-    private fun validarLugarMarcacion(lugarMarcacion: LatLng):Boolean{
+    private fun validarLugarMarcacion(lugarMarcacion: LatLng): Boolean {
         val validar = PolyUtil.containsLocation(
-            lugarMarcacion,poligono.points,false
+            lugarMarcacion, poligono.points, false
         )
         return validar
     }
 
     @SuppressLint("MissingPermission")
-    private fun obtenerUbicacion(){
+    private fun obtenerUbicacion() {
         try {
             if (isLocationPermissionGranted()) {
                 val locationResult = fusedLocationProviderClient.lastLocation
                 locationResult.addOnCompleteListener(requireContext() as Activity) { task ->
                     if (task.isSuccessful) {
-                        ubicacion = LatLng(task.result.latitude,task.result.longitude)
+                        ubicacion = LatLng(task.result.latitude, task.result.longitude)
                     } else {
                         Log.d("", "Current location is null. Using defaults.")
                         Log.e("", "Exception: %s", task.exception)
@@ -364,7 +406,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         }
     }
 
-    private fun guardaMarcacion(){
+    private fun guardaMarcacion() {
 
     }
 
