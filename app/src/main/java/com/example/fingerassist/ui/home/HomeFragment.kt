@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
-import android.os.Handler
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.firebase.firestore.GeoPoint
 import com.google.maps.android.PolyUtil
+import java.util.*
 
 class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener {
@@ -89,6 +90,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                                 if (it) {
                                     textView.text = "Ingreso registrado"
                                 }
+                                generaMarcacion()
                             }
                         } else {
                             Toast.makeText(
@@ -111,6 +113,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                                 if (it) {
                                     textView.text = "Salida registrado"
                                 }
+                                Toast.makeText(requireContext(), generaCodigoMarcacione(), Toast.LENGTH_SHORT).show()
+
+                                generaMarcacion()
                             }
                         } else {
                             Toast.makeText(
@@ -318,6 +323,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 sp.saveAxis2(setOf(axis2.latitude.toString(), axis2.longitude.toString()))
                 sp.saveAxis3(setOf(axis3.latitude.toString(), axis3.longitude.toString()))
                 sp.saveAxis4(setOf(axis4.latitude.toString(), axis4.longitude.toString()))
+                sp.saveHorario((it.get("entrada") as String) + " - " + (it.get("salida") as String))
                 aux = true
                 if (aux) {
                     myCallBack.onCallBack(true)
@@ -409,8 +415,57 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         }
     }
 
-    private fun guardaMarcacion() {
+    private fun compruebaMarcacion(myCallBack: CallBack){
+        var aux: Boolean
+        db.collection("users").document(sp.getName())
+            .collection("marcaciones").document("Administrativo")
+            .get().addOnSuccessListener {
 
+            }
+    }
+
+    private fun generaCodigoMarcacione():String{
+        val date = Date()
+        return DateFormat.format("dd_mm_yyyy", date).toString()
+    }
+
+    private fun generaMarcacion() {
+        val date = Date()
+        val name = obtenerNameDia(date)
+        val horario = sp.getHorario()
+        val dia = obtenerNumDia(date)
+        val hora = obtenerHora(date) + ":00"
+
+        //Toast.makeText(requireContext(), name, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun obtenerNameDia(date:Date):String{
+        var dia = DateFormat.format("EEEE", date).toString()
+        when (dia) {
+            "Monday" -> dia = "LU"
+            "lunes" -> dia = "LU"
+            "Tuesday" -> dia = "MA"
+            "martes" -> dia = "MA"
+            "Wednesday" -> dia = "MI"
+            "miércoles" -> dia = "MI"
+            "Thursday" -> dia = "JU"
+            "jueves" -> dia = "JU"
+            "Friday" -> dia = "VI"
+            "viernes" -> dia = "VI"
+            "Saturday" -> dia = "SA"
+            "sábado" -> dia = "SA"
+            "Sunday" -> dia = "DO"
+            "domingo" -> dia = "DO"
+        }
+        return dia
+    }
+
+    private fun obtenerNumDia(date: Date): String {
+        return DateFormat.format("dd", date).toString()
+    }
+
+    private fun obtenerHora(date: Date): String {
+        return DateFormat.format("HH", date).toString()
     }
 
     override fun onDestroyView() {

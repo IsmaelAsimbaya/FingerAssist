@@ -17,51 +17,38 @@ class Preferences(val context: Context) {
         return storage
     }
 
+    //user
     fun saveUser(name: String) {
         storage.edit().putString(SHARED_USER, name).apply()
-    }
-
-    fun saveRemember(remember: Boolean) {
-        storage.edit().putBoolean(SHARED_REMEMBER, remember).apply()
-    }
-
-    /*fun saveLat(lat:String){
-        storage.edit().putString("lat",lat).apply()
-    }
-
-    fun saveLng(lng:String){
-        storage.edit().putString("lng",lng).apply()
-    }*/
-
-    fun saveLatLng(latLng: Set<String>) {
-        storage.edit().putStringSet("latlng", latLng).apply()
-    }
-
-    fun saveAxis1(axis: Set<String>) {
-        storage.edit().putStringSet("axis1", axis).apply()
-    }
-
-    fun saveAxis2(axis: Set<String>) {
-        storage.edit().putStringSet("axis2", axis).apply()
-    }
-
-    fun saveAxis3(axis: Set<String>) {
-        storage.edit().putStringSet("axis3", axis).apply()
-    }
-
-    fun saveAxis4(axis: Set<String>) {
-        storage.edit().putStringSet("axis4", axis).apply()
     }
 
     fun getName(): String {
         return storage.getString(SHARED_USER, "")!!
     }
 
+    //remember
+    fun saveRemember(remember: Boolean) {
+        storage.edit().putBoolean(SHARED_REMEMBER, remember).apply()
+    }
+
     fun getRemember(): Boolean {
         return storage.getBoolean(SHARED_REMEMBER, false)
     }
 
+    //horario
+    fun saveHorario(horario: String){
+        storage.edit().putString("horario",horario).apply()
+    }
+
+    fun getHorario():String{
+        return storage.getString("horario","")!!
+    }
+
     //coord lugar
+    fun saveLatLng(latLng: Set<String>) {
+        storage.edit().putStringSet("latlng", latLng).apply()
+    }
+
     fun getLat(): String {
         Log.d("localizacion",storage.getStringSet("latlng", setOf()).toString())
         return storage.getStringSet("latlng", setOf())!!.toList()[1]
@@ -72,6 +59,10 @@ class Preferences(val context: Context) {
     }
 
     //axis1
+    fun saveAxis1(axis: Set<String>) {
+        storage.edit().putStringSet("axis1", axis).apply()
+    }
+
     fun getAxis1Lat(): String {
         return storage.getStringSet("axis1", setOf())!!.toList()[1]
     }
@@ -81,6 +72,10 @@ class Preferences(val context: Context) {
     }
 
     //axis2
+    fun saveAxis2(axis: Set<String>) {
+           storage.edit().putStringSet("axis2", axis).apply()
+    }
+
     fun getAxis2Lat(): String {
         return storage.getStringSet("axis2", setOf())!!.toList()[1]
     }
@@ -90,6 +85,10 @@ class Preferences(val context: Context) {
     }
 
     //axis3
+    fun saveAxis3(axis: Set<String>) {
+        storage.edit().putStringSet("axis3", axis).apply()
+    }
+
     fun getAxis3Lat(): String {
         return storage.getStringSet("axis3", setOf())!!.toList()[0]
     }
@@ -99,6 +98,10 @@ class Preferences(val context: Context) {
     }
 
     //axis4
+    fun saveAxis4(axis: Set<String>) {
+        storage.edit().putStringSet("axis4", axis).apply()
+    }
+
     fun getAxis4Lat(): String {
         return storage.getStringSet("axis4", setOf())!!.toList()[0]
     }
