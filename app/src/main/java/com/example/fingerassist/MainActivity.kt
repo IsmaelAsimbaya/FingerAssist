@@ -33,6 +33,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity() {
@@ -91,11 +92,22 @@ class MainActivity : AppCompatActivity() {
             Picasso.get().load(it.get("img") as String?).into(img)
         }
 
+        /*cargaUbicacion(object : CallBack{
+            override fun onCallBack(value: Boolean) {
+                if (value){
+
+                }else{
+
+                }
+            }
+        })*/
         cargaUbicacion()
 
     }
 
-    private suspend fun cargaUbicacion() {
+    //private fun cargaUbicacion(myCallBack: CallBack) {
+    private fun cargaUbicacion() {
+        //var aux = false
         db.collection("users").document(sp.getName())
             .collection("horario").document("Administrativo")
             .get().addOnSuccessListener {
@@ -109,7 +121,13 @@ class MainActivity : AppCompatActivity() {
                 sp.saveAxis2(setOf(axis2.latitude.toString(), axis2.longitude.toString()))
                 sp.saveAxis3(setOf(axis3.latitude.toString(), axis3.longitude.toString()))
                 sp.saveAxis4(setOf(axis4.latitude.toString(), axis4.longitude.toString()))
+                //aux = true
             }
+        /*if (aux){
+            myCallBack.onCallBack(true)
+        }else{
+            myCallBack.onCallBack(false)
+        }*/
 
     }
 

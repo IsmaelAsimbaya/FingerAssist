@@ -352,7 +352,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 val locationResult = fusedLocationProviderClient.lastLocation
                 locationResult.addOnCompleteListener(requireContext() as Activity) { task ->
                     if (task.isSuccessful) {
-                        // Set the map's camera position to the current location of the device.
                         ubicacion = LatLng(task.result.latitude,task.result.longitude)
                     } else {
                         Log.d("", "Current location is null. Using defaults.")
@@ -363,6 +362,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)
         }
+    }
+
+    private fun guardaMarcacion(){
+
     }
 
     override fun onDestroyView() {
