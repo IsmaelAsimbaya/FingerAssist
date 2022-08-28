@@ -1,8 +1,10 @@
 package com.example.fingerassist.ui.home
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
@@ -22,6 +24,8 @@ import com.example.fingerassist.MapsActivity
 import com.example.fingerassist.R
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
 import com.example.fingerassist.databinding.FragmentHomeBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -29,7 +33,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polygon
+import com.google.android.gms.maps.model.PolygonOptions
 import com.google.firebase.firestore.GeoPoint
+import com.google.maps.android.PolyUtil
 
 class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener {
@@ -42,6 +49,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     private val binding get() = _binding!!
     private var canAuthenticate = false
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    private lateinit var poligono: Polygon
+    private lateinit var lugarMarcacion: LatLng
+    private lateinit var ubicacion: LatLng
+    private lateinit var fusedLocationProviderClient:FusedLocationProviderClient
 
     private lateinit var map: GoogleMap
 
@@ -60,6 +71,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        obtenerUbicacion()
 
         val textView: TextView = binding.textHome
         homeViewModel.text.observe(viewLifecycleOwner) {
@@ -67,19 +80,31 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         }
 
         binding.marcIngreso.setOnClickListener {
-            authenticate {
-                if (it) {
-                    textView.text = "Ingreso registrado"
+            obtenerUbicacion()
+            if (validarLugarMarcacion(ubicacion)){
+                authenticate {
+                    if (it) {
+                        textView.text = "Ingreso registrado"
+                    }
                 }
+            }else{
+                Toast.makeText(requireContext(), "No se encuentra en el area designada", Toast.LENGTH_SHORT).show()
             }
+
         }
 
         binding.marcSalida.setOnClickListener {
-            authenticate {
-                if (it) {
-                    textView.text = "Salida registrado"
+            obtenerUbicacion()
+            if (validarLugarMarcacion(ubicacion)){
+                authenticate {
+                    if (it) {
+                        textView.text = "Salida registrado"
+                    }
                 }
+            }else{
+                Toast.makeText(requireContext(), "No se encuentra en el area designada", Toast.LENGTH_SHORT).show()
             }
+
         }
 
         //cargar biometricas
@@ -87,7 +112,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         //cargar mapa
         Handler().postDelayed({
             createMap()
-        },2000)
+        }, 2000)
 
 
 
@@ -136,9 +161,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        createMarkerLugar_de_Marcacion(cargaLugar())
+        lugarMarcacion = cargaLugar()
+        createMarkerLugar_de_Marcacion(lugarMarcacion)
+        poligono = createAreaMarcacion()
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
+
         enableLocation()
     }
 
@@ -255,16 +283,34 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         ).show()
     }
 
-    private fun cargaLugar() :LatLng{
+    private fun cargaLugar(): LatLng {
         val lat = sp.getLat()
         Log.println(Log.DEBUG, "test", "lat$lat")
         val lng = sp.getLng()
         Log.println(Log.DEBUG, "test", "lng$lng")
-        return LatLng(lat.toDouble() ,lng.toDouble())
+        return LatLng(lat.toDouble(), lng.toDouble())
+    }
+
+    private fun cargaAxis1(): LatLng {
+        return LatLng(sp.getAxis1Lat().toDouble(), sp.getAxis1Lng().toDouble())
+    }
+
+    private fun cargaAxis2(): LatLng {
+        return LatLng(sp.getAxis2Lat().toDouble(), sp.getAxis2Lng().toDouble())
+    }
+
+    private fun cargaAxis3(): LatLng {
+        return LatLng(sp.getAxis3Lat().toDouble(), sp.getAxis3Lng().toDouble())
+    }
+
+    private fun cargaAxis4(): LatLng {
+        val lat = sp.getAxis4Lat().toDouble()
+        val lng = sp.getAxis4Lng().toDouble()
+        return LatLng(lat, lng)
     }
 
     private fun createMarkerLugar_de_Marcacion(coordinates: LatLng) {
-        Log.println(Log.DEBUG,"localizacion","posicion$coordinates")
+        Log.println(Log.DEBUG, "localizacion", "posicion$coordinates")
         val marker: MarkerOptions =
             MarkerOptions().position(coordinates).title("Lugar de Marcacion")
         map.addMarker(marker)
@@ -275,6 +321,49 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         )
     }
 
+    private fun createAreaMarcacion(): Polygon {
+        val poligono = map.addPolygon(
+            PolygonOptions()
+                .add(
+                    cargaAxis1(),
+                    cargaAxis2(),
+                    cargaAxis3(),
+                    cargaAxis4()
+                )
+        )
+        poligono.tag = "AreaMarcacion"
+        poligono.strokeWidth = 1.0f
+        poligono.strokeColor = Color.parseColor("#FEAA0C")
+        poligono.fillColor = Color.parseColor("#FEAA0C")
+        return poligono
+    }
+
+    private fun validarLugarMarcacion(lugarMarcacion: LatLng):Boolean{
+        val validar = PolyUtil.containsLocation(
+            lugarMarcacion,poligono.points,false
+        )
+        return validar
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun obtenerUbicacion(){
+        try {
+            if (isLocationPermissionGranted()) {
+                val locationResult = fusedLocationProviderClient.lastLocation
+                locationResult.addOnCompleteListener(requireContext() as Activity) { task ->
+                    if (task.isSuccessful) {
+                        // Set the map's camera position to the current location of the device.
+                        ubicacion = LatLng(task.result.latitude,task.result.longitude)
+                    } else {
+                        Log.d("", "Current location is null. Using defaults.")
+                        Log.e("", "Exception: %s", task.exception)
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

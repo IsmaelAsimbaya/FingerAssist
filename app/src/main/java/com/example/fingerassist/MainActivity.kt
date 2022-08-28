@@ -100,12 +100,15 @@ class MainActivity : AppCompatActivity() {
             .collection("horario").document("Administrativo")
             .get().addOnSuccessListener {
                 val coord: GeoPoint = it.get("lugar") as GeoPoint
-                val lat: String = coord.latitude.toString()
-                Log.println(Log.DEBUG, "localizacion", "latitud$lat")
-                val lng: String = coord.longitude.toString()
-                Log.println(Log.DEBUG, "localizacion", "longitud$lng")
-                sp.saveLat(lat)
-                sp.saveLng(lng)
+                val axis1: GeoPoint = it.get("axis1") as GeoPoint
+                val axis2: GeoPoint = it.get("axis2") as GeoPoint
+                val axis3: GeoPoint = it.get("axis3") as GeoPoint
+                val axis4: GeoPoint = it.get("axis4") as GeoPoint
+                sp.saveLatLng(setOf(coord.latitude.toString(), coord.longitude.toString()))
+                sp.saveAxis1(setOf(axis1.latitude.toString(), axis1.longitude.toString()))
+                sp.saveAxis2(setOf(axis2.latitude.toString(), axis2.longitude.toString()))
+                sp.saveAxis3(setOf(axis3.latitude.toString(), axis3.longitude.toString()))
+                sp.saveAxis4(setOf(axis4.latitude.toString(), axis4.longitude.toString()))
             }
 
     }
