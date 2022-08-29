@@ -54,7 +54,8 @@ class PerfilFragment : Fragment() {
         db.collection("users").document(email!!).get().addOnSuccessListener {
 
             val img: ImageView = binding.imageUser
-            Picasso.get().load(it.get("img") as String?).into(img)
+            Picasso.get().load(it.get("img") as String?).resize(400, 400)
+                .centerCrop().into(img)
 
             val userName: TextView = binding.textUserName
             userName.setText(it.get("name") as String?)
