@@ -1,10 +1,13 @@
 package com.example.fingerassist
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.Menu
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -15,12 +18,14 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
+import com.example.fingerassist.Utils.Notificaciones
 import com.example.fingerassist.databinding.ActivityMainBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,16 +41,10 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        /* binding.appBarMain.fab.setOnClickListener { view ->
-             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                 .setAction("Action", null).show()
-         }*/
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
@@ -58,6 +57,60 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        sp.saveCodigoFecha(generaCodigoFecha())
+
+        existeCodigoMarcacion(object : CallBack {
+            override fun onCallBack(value: Boolean) {
+                if (value) {
+                    if (!sp.getMarcacionDiaria()) {
+                        creaPlantillaMarcacionDia()
+                    }
+                    existeMarcacionEntrada(object : CallBack {
+                        override fun onCallBack(value: Boolean) {
+                            if (value) {
+                                if (sp.getMarcacionesEntrada()) {
+                                    existeMarcacionSalida(object : CallBack {
+                                        override fun onCallBack(value: Boolean) {
+                                            if (value) {
+                                                if (sp.getMarcacionesSalida()) {
+                                                    Toast.makeText(
+                                                        this@MainActivity,
+                                                        "Asistencia Completa :D",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else {
+                                                    val intent =
+                                                        Intent(
+                                                            this@MainActivity,
+                                                            LoginActivity::class.java
+                                                        )
+                                                    Notificaciones(this@MainActivity).sendNotification(
+                                                        intent,
+                                                        "Recordatorio FingerAssist",
+                                                        "Recordatorio de Salida",
+                                                        "Recuerde realizar la marcacion de Salida ..."
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }, sp.getCodigoFecha())
+                                } else {
+                                    val intent =
+                                        Intent(this@MainActivity, LoginActivity::class.java)
+                                    Notificaciones(this@MainActivity).sendNotification(
+                                        intent,
+                                        "Recordatorio FingerAssist",
+                                        "Recordatorio de Ingreso",
+                                        "Recuerde realizar la marcacion de Ingreso ..."
+                                    )
+                                }
+                            }
+                        }
+                    }, sp.getCodigoFecha())
+                }
+            }
+        }, sp.getCodigoFecha())
 
         lifecycleScope.launch(Dispatchers.IO) {
             cargaDatosUsuario(sp.getName(), navView)
@@ -78,48 +131,86 @@ class MainActivity : AppCompatActivity() {
             Picasso.get().load(it.get("img") as String?).into(img)
         }
 
-        /*cargaCoordenadas(object : CallBack{
-            override fun onCallBack(value: Boolean) {
-                if (value){
-
-                }else{
-
-                }
-            }
-        })*/
-        //cargaUbicacion()
-
     }
 
-    /*private fun cargaCoordenadas(myCallBack: CallBack) {
-    //private fun cargaUbicacion() {
-        var aux = false
+    private fun existeCodigoMarcacion(myCallBack: CallBack, codigoMarcacion: String) {
+        var aux: Boolean
+
         db.collection("users").document(sp.getName())
-            .collection("horario").document("Administrativo")
+            .collection("marcaciones").document(codigoMarcacion)
             .get().addOnSuccessListener {
-                val coord: GeoPoint = it.get("lugar") as GeoPoint
-                val axis1: GeoPoint = it.get("axis1") as GeoPoint
-                val axis2: GeoPoint = it.get("axis2") as GeoPoint
-                val axis3: GeoPoint = it.get("axis3") as GeoPoint
-                val axis4: GeoPoint = it.get("axis4") as GeoPoint
-                sp.saveLatLng(setOf(coord.latitude.toString(), coord.longitude.toString()))
-                sp.saveAxis1(setOf(axis1.latitude.toString(), axis1.longitude.toString()))
-                sp.saveAxis2(setOf(axis2.latitude.toString(), axis2.longitude.toString()))
-                sp.saveAxis3(setOf(axis3.latitude.toString(), axis3.longitude.toString()))
-                sp.saveAxis4(setOf(axis4.latitude.toString(), axis4.longitude.toString()))
+                if (!it.exists()) {
+                    sp.saveMarcacionDiaria(false)
+                } else {
+                    sp.saveMarcacionDiaria(true)
+                }
                 aux = true
+                if (aux) {
+                    myCallBack.onCallBack(true)
+                } else {
+                    myCallBack.onCallBack(false)
+                }
             }
-        if (aux){
-            myCallBack.onCallBack(true)
-        }else{
-            myCallBack.onCallBack(false)
-        }
+    }
 
-    }*/
+    private fun existeMarcacionEntrada(myCallBack: CallBack, codigoMarcacion: String) {
+        var aux: Boolean
+        db.collection("users").document(sp.getName())
+            .collection("marcaciones").document(codigoMarcacion)
+            .get().addOnSuccessListener {
+                if ((it.get("entrada") as String) == "-") {
+                    sp.saveMarcacionEntrada(false)
+                } else {
+                    sp.saveMarcacionEntrada(true)
+                }
+                aux = true
+                if (aux) {
+                    myCallBack.onCallBack(true)
+                } else {
+                    myCallBack.onCallBack(false)
+                }
+            }
+    }
 
+    private fun existeMarcacionSalida(myCallBack: CallBack, codigoMarcacion: String) {
+        var aux: Boolean
+        db.collection("users").document(sp.getName())
+            .collection("marcaciones").document(codigoMarcacion)
+            .get().addOnSuccessListener {
+                if ((it.get("salida") as String) == "-") {
+                    sp.saveMarcacionSalida(false)
+                } else {
+                    sp.saveMarcacionSalida(true)
+                }
+                aux = true
+                if (aux) {
+                    myCallBack.onCallBack(true)
+                } else {
+                    myCallBack.onCallBack(false)
+                }
+            }
+    }
+
+    private fun creaPlantillaMarcacionDia() {
+        val data = hashMapOf(
+            "atraso" to "-",
+            "dia" to "-",
+            "entrada" to "-",
+            "horario" to "-",
+            "name" to "-",
+            "salida" to "-"
+        )
+        db.collection("users").document(sp.getName())
+            .collection("marcaciones").document(sp.getCodigoFecha()).set(data)
+    }
+
+
+    private fun generaCodigoFecha(): String {
+        val date = Date()
+        return DateFormat.format("dd_MM_yyyy", date).toString()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         return true
     }

@@ -35,6 +35,42 @@ class Preferences(val context: Context) {
         return storage.getBoolean(SHARED_REMEMBER, false)
     }
 
+    //codigoFecha
+    fun saveCodigoFecha(codigo:String){
+        storage.edit().putString("codigoFecha",codigo).apply()
+    }
+
+    fun getCodigoFecha():String{
+        return storage.getString("codigoFecha","12_10_1492")!!
+    }
+
+    //marcacionDiaria
+    fun saveMarcacionDiaria(marcDiaria:Boolean){
+        storage.edit().putBoolean("marcDiaria", marcDiaria).apply()
+    }
+
+    fun getMarcacionDiaria():Boolean{
+        return storage.getBoolean("marcDiaria",false)
+    }
+
+    //marcacionEntrada
+    fun saveMarcacionEntrada(marcEntrada: Boolean){
+        storage.edit().putBoolean("marcEntrada",marcEntrada).apply()
+    }
+
+    fun getMarcacionesEntrada():Boolean{
+        return storage.getBoolean("marcEntrada",false)
+    }
+
+    //marcacionSalida
+    fun saveMarcacionSalida(marcSalida: Boolean){
+        storage.edit().putBoolean("marcSalida",marcSalida).apply()
+    }
+
+    fun getMarcacionesSalida():Boolean{
+        return storage.getBoolean("marcSalida",false)
+    }
+
     //horario
     fun saveHorario(horario: String){
         storage.edit().putString("horario",horario).apply()

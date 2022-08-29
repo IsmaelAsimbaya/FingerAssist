@@ -44,13 +44,15 @@ class LogoutFragment : Fragment() {
 
     private fun showLogin( ) {
         val mainIntent = Intent(requireContext(), LoginActivity::class.java)
-        sp.saveRemember(false)
+        /*sp.saveRemember(false)
         sp.saveUser("")
         sp.saveLatLng(setOf("0.0","0.0"))
         sp.saveAxis1(setOf("0.0","0.0"))
         sp.saveAxis2(setOf("0.0","0.0"))
         sp.saveAxis3(setOf("0.0","0.0"))
-        sp.saveAxis4(setOf("0.0","0.0"))
+        sp.saveAxis4(setOf("0.0","0.0"))*/
+
+        sp.getSharedPreference().edit().clear().apply()
 
         startActivity(mainIntent)
         requireActivity().finish()
