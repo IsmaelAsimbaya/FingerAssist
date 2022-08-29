@@ -69,33 +69,7 @@ class MainActivity : AppCompatActivity() {
                     existeMarcacionEntrada(object : CallBack {
                         override fun onCallBack(value: Boolean) {
                             if (value) {
-                                if (sp.getMarcacionesEntrada()) {
-                                    existeMarcacionSalida(object : CallBack {
-                                        override fun onCallBack(value: Boolean) {
-                                            if (value) {
-                                                if (sp.getMarcacionesSalida()) {
-                                                    Toast.makeText(
-                                                        this@MainActivity,
-                                                        "Asistencia Completa :D",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } else {
-                                                    val intent =
-                                                        Intent(
-                                                            this@MainActivity,
-                                                            LoginActivity::class.java
-                                                        )
-                                                    Notificaciones(this@MainActivity).sendNotification(
-                                                        intent,
-                                                        "Recordatorio FingerAssist",
-                                                        "Recordatorio de Salida",
-                                                        "Recuerde realizar la marcacion de Salida ..."
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }, sp.getCodigoFecha())
-                                } else {
+                                if (!sp.getMarcacionesEntrada()) {
                                     val intent =
                                         Intent(this@MainActivity, LoginActivity::class.java)
                                     Notificaciones(this@MainActivity).sendNotification(
@@ -108,6 +82,33 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }, sp.getCodigoFecha())
+                    existeMarcacionSalida(object : CallBack {
+                        override fun onCallBack(value: Boolean) {
+                            if (value) {
+                                if (!sp.getMarcacionesSalida() && sp.getMarcacionesEntrada()) {
+                                    val intent =
+                                        Intent(
+                                            this@MainActivity,
+                                            LoginActivity::class.java
+                                        )
+                                    Notificaciones(this@MainActivity).sendNotification(
+                                        intent,
+                                        "Recordatorio FingerAssist",
+                                        "Recordatorio de Salida",
+                                        "Recuerde realizar la marcacion de Salida ..."
+                                    )
+                                }
+                            }
+                        }
+                    }, sp.getCodigoFecha())
+                    if (sp.getMarcacionesSalida() && sp.getMarcacionesEntrada()){
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Asistencia Completa :D",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
                 }
             }
         }, sp.getCodigoFecha())
@@ -192,18 +193,46 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun creaPlantillaMarcacionDia() {
+        val date = Date()
+        val numDia = obtenerNumDia(date)
+        val name = obtenerNameDia(date)
         val data = hashMapOf(
             "atraso" to "-",
-            "dia" to "-",
+            "dia" to numDia,
             "entrada" to "-",
             "horario" to "-",
-            "name" to "-",
+            "name" to name,
             "salida" to "-"
         )
         db.collection("users").document(sp.getName())
             .collection("marcaciones").document(sp.getCodigoFecha()).set(data)
     }
 
+    private fun obtenerNumDia(date: Date): String {
+        return DateFormat.format("dd", date).toString()
+    }
+
+    private fun obtenerNameDia(date: Date): String {
+        var dia = DateFormat.format("EEEE", date).toString()
+        var mesAno = DateFormat.format("MM/yy", date).toString()
+        when (dia) {
+            "Monday" -> dia = "LU"
+            "lunes" -> dia = "LU"
+            "Tuesday" -> dia = "MA"
+            "martes" -> dia = "MA"
+            "Wednesday" -> dia = "MI"
+            "miércoles" -> dia = "MI"
+            "Thursday" -> dia = "JU"
+            "jueves" -> dia = "JU"
+            "Friday" -> dia = "VI"
+            "viernes" -> dia = "VI"
+            "Saturday" -> dia = "SA"
+            "sábado" -> dia = "SA"
+            "Sunday" -> dia = "DO"
+            "domingo" -> dia = "DO"
+        }
+        return dia + " " + mesAno
+    }
 
     private fun generaCodigoFecha(): String {
         val date = Date()

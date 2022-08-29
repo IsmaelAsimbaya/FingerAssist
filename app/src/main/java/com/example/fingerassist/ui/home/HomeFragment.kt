@@ -53,16 +53,22 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     // onDestroyView.
     private val binding get() = _binding!!
     private var canAuthenticate = false
+
     //biometrics
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
+
     //area marcacion
     private lateinit var poligono: Polygon
+
     //lugar de marcacion
     private lateinit var lugarMarcacion: LatLng
+
     //ubicacion actual
     private lateinit var ubicacion: LatLng
+
     //cliente de ubicacion
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     //mapa
     private lateinit var map: GoogleMap
 
@@ -75,31 +81,29 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-
         binding.marcIngreso.setOnClickListener {
             obtenerUbicacion(object : CallBack {
                 override fun onCallBack(value: Boolean) {
                     if (value) {
                         if (validarLugarMarcacion(ubicacion)) {
-                            if (!sp.getMarcacionesEntrada()){
+                            if (!sp.getMarcacionesEntrada()) {
                                 authenticate {
-
+                                    generaIngreso()
+                                    val hora = obtenerHora(Date()) + ":" + obtenerMinutos(Date())
+                                    binding.textUltimMarc.setText(hora)
                                 }
-                            }else{
-                                Toast.makeText(requireContext(), "Ya se registro un ingreso", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Ya se registro un ingreso",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
                             Toast.makeText(
@@ -118,12 +122,24 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 override fun onCallBack(value: Boolean) {
                     if (value) {
                         if (validarLugarMarcacion(ubicacion)) {
-                            if (!sp.getMarcacionesSalida()){
-                                authenticate {
-
+                            if (!sp.getMarcacionesSalida()) {
+                                if (sp.getMarcacionesEntrada()) {
+                                    authenticate {
+                                        generaSalida()
+                                    }
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Realice primero una entrada",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
-                            }else{
-                                Toast.makeText(requireContext(), "Ya se registro una salida", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Ya se registro una salida",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
                             Toast.makeText(
@@ -144,6 +160,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
             override fun onCallBack(value: Boolean) {
                 if (value) {
                     createMap()
+                    binding.textHorario.setText(sp.getHorario())
+                    binding.textTiempTrab.setText("0")
                 }
             }
         })
@@ -423,43 +441,46 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
 
-    private fun generaMarcacion() {
+    private fun generaIngreso() {
         val date = Date()
-        val name = obtenerNameDia(date)
-        val horario = sp.getHorario()
-        val dia = obtenerNumDia(date)
-        val hora = obtenerHora(date) + ":00"
-
-        //Toast.makeText(requireContext(), name, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun obtenerNameDia(date: Date): String {
-        var dia = DateFormat.format("EEEE", date).toString()
-        when (dia) {
-            "Monday" -> dia = "LU"
-            "lunes" -> dia = "LU"
-            "Tuesday" -> dia = "MA"
-            "martes" -> dia = "MA"
-            "Wednesday" -> dia = "MI"
-            "miércoles" -> dia = "MI"
-            "Thursday" -> dia = "JU"
-            "jueves" -> dia = "JU"
-            "Friday" -> dia = "VI"
-            "viernes" -> dia = "VI"
-            "Saturday" -> dia = "SA"
-            "sábado" -> dia = "SA"
-            "Sunday" -> dia = "DO"
-            "domingo" -> dia = "DO"
+        val hora = obtenerHora(date) + ":" + obtenerMinutos(date)
+        val horaEntrada = sp.getHorario().substring(0, 2).toIntOrNull()
+        val retraso: Int = if (obtenerHora(date).toIntOrNull()!! > horaEntrada!!) {
+            obtenerHora(date).toIntOrNull()!! - horaEntrada
+        } else {
+            0
         }
-        return dia
+        val updates = hashMapOf<String, Any>(
+            "horario" to sp.getHorario(),
+            "atraso" to retraso.toString(),
+            "entrada" to hora,
+        )
+        db.collection("users").document(sp.getName())
+            .collection("marcaciones").document(sp.getCodigoFecha()).update(updates)
+
+        sp.saveMarcacionEntrada(true)
+        Toast.makeText(requireContext(), "Registro Completado", Toast.LENGTH_SHORT).show()
     }
 
-    private fun obtenerNumDia(date: Date): String {
-        return DateFormat.format("dd", date).toString()
+    fun generaSalida() {
+        val date = Date()
+        val hora = obtenerHora(date) + ":" + obtenerMinutos(date)
+        val updates = hashMapOf<String, Any>(
+            "salida" to hora
+        )
+        db.collection("users").document(sp.getName())
+            .collection("marcaciones").document(sp.getCodigoFecha()).update(updates)
+
+        sp.saveMarcacionSalida(true)
+        Toast.makeText(requireContext(), "Registro Completado", Toast.LENGTH_SHORT).show()
     }
 
     private fun obtenerHora(date: Date): String {
         return DateFormat.format("HH", date).toString()
+    }
+
+    private fun obtenerMinutos(date: Date): String {
+        return DateFormat.format("mm", date).toString()
     }
 
     override fun onDestroyView() {

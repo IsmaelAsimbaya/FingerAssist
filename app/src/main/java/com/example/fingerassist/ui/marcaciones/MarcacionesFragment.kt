@@ -40,10 +40,9 @@ class MarcacionesFragment : Fragment() {
 
         userArrayList = ArrayList()
 
-        EventChangeListener(object : CallBack {
+        eventChangeListener(object : CallBack {
             override fun onCallBack(value: Boolean) {
                 if (value){
-
                     initRecycler(binding.root,userArrayList)
                 }
             }
@@ -60,13 +59,13 @@ class MarcacionesFragment : Fragment() {
         recyclerView.adapter = adapter
     }
 
-    private fun EventChangeListener(myCallback: CallBack): List<User>{
+    private fun eventChangeListener(myCallback: CallBack){
         var aux: Boolean
-        //var us: User = User("12","hora", "12:00", "13:00","2")
-        //userArrayList = arrayListOf<User>(us)
+
         db.collection("users").document(FingerAssist.sp.getName()).collection("marcaciones").addSnapshotListener(object :
             EventListener<QuerySnapshot> {
             override fun onEvent(value: QuerySnapshot?, error: FirebaseFirestoreException?) {
+                userArrayList = ArrayList()
                 if (error != null){
                     Log.e("Firestore Error---", error.message.toString())
                     return
@@ -78,7 +77,7 @@ class MarcacionesFragment : Fragment() {
                 }
 
                 aux = true
-                Log.d("list",userArrayList.toString())
+                //Log.d("list",userArrayList.toString())
                 if (aux){
                     myCallback.onCallBack(true)
                 }else{
@@ -86,7 +85,6 @@ class MarcacionesFragment : Fragment() {
                 }
             }
         })
-        return userArrayList
     }
 
     override fun onDestroyView() {

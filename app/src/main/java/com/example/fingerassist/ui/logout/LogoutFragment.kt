@@ -25,16 +25,9 @@ class LogoutFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val creditsViewModel =
-            ViewModelProvider(this).get(LogoutViewModel::class.java)
 
         _binding = FragmentCreditsBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        val textView: TextView = binding.textCredits
-        creditsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
 
         sp.saveRemember(false)
         showLogin()
