@@ -1,5 +1,6 @@
 package com.example.fingerassist.Utils
 
+
 data class User (var dia: String ?= "",
                  var horario: String ?= "",
                  var entrada: String ?= "",

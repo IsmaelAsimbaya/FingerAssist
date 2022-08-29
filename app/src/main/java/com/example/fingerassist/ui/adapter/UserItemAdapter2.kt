@@ -22,6 +22,7 @@ class UserItemAdapter2 (
             binding.textViewEntrada.text = itemUser.entrada.toString()
             binding.textViewSalida.text = itemUser.salida.toString()
             binding.textViewAtraso.text = itemUser.atraso.toString()
+
             binding.textViewNameDia.text = itemUser.name.toString()
         }
     }
