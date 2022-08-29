@@ -4,19 +4,98 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.perfil.PerfilFragment">
+    tools:context=".ui.perfil.PerfilFragment"
+    android:layout_margin="25dp">
 
-    <TextView
-        android:id="@+id/text_perfil"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageUser"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:src="@tools:sample/avatars" />
+
+            <LinearLayout
+                android:layout_width="210dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TextUserName"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:id="@+id/textCI"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Text"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:text="Correo"
+            android:layout_marginTop="25dp"/>
+
+        <TextView
+            android:id="@+id/textCorreo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextCorreo"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Telefono"
+            android:textSize="28sp"
+            android:layout_marginTop="25dp"/>
+
+        <TextView
+            android:id="@+id/textTlfMovil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextTelfMovil"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/textTlfFijo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextTelfFijo"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Direccion"
+            android:textSize="28sp"
+            android:layout_marginTop="25dp"/>
+
+        <TextView
+            android:id="@+id/textDireccion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="20sp"/>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
