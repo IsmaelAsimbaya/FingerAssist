@@ -3,6 +3,7 @@ package com.example.fingerassist.ui.home
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -21,9 +22,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.fingerassist.CallBack
+import com.example.fingerassist.LoginActivity
 import com.example.fingerassist.MapsActivity
 import com.example.fingerassist.R
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
+import com.example.fingerassist.Utils.Notificaciones
 import com.example.fingerassist.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -50,12 +53,17 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     // onDestroyView.
     private val binding get() = _binding!!
     private var canAuthenticate = false
+    //biometrics
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    //area marcacion
     private lateinit var poligono: Polygon
+    //lugar de marcacion
     private lateinit var lugarMarcacion: LatLng
+    //ubicacion actual
     private lateinit var ubicacion: LatLng
+    //cliente de ubicacion
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
+    //mapa
     private lateinit var map: GoogleMap
 
     companion object {
@@ -86,11 +94,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 override fun onCallBack(value: Boolean) {
                     if (value) {
                         if (validarLugarMarcacion(ubicacion)) {
-                            authenticate {
-                                if (it) {
-                                    textView.text = "Ingreso registrado"
+                            if (!sp.getMarcacionesEntrada()){
+                                authenticate {
+
                                 }
-                                generaMarcacion()
+                            }else{
+                                Toast.makeText(requireContext(), "Ya se registro un ingreso", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             Toast.makeText(
@@ -109,13 +118,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 override fun onCallBack(value: Boolean) {
                     if (value) {
                         if (validarLugarMarcacion(ubicacion)) {
-                            authenticate {
-                                if (it) {
-                                    textView.text = "Salida registrado"
-                                }
-                                Toast.makeText(requireContext(), generaCodigoMarcacione(), Toast.LENGTH_SHORT).show()
+                            if (!sp.getMarcacionesSalida()){
+                                authenticate {
 
-                                generaMarcacion()
+                                }
+                            }else{
+                                Toast.makeText(requireContext(), "Ya se registro una salida", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             Toast.makeText(
@@ -186,7 +194,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         lugarMarcacion = cargaLugar()
-        createMarkerLugar_de_Marcacion(lugarMarcacion)
+        createMarkerLugarMarcacion(lugarMarcacion)
         poligono = createAreaMarcacion()
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
@@ -353,7 +361,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         return LatLng(sp.getAxis4Lat().toDouble(), sp.getAxis4Lng().toDouble())
     }
 
-    private fun createMarkerLugar_de_Marcacion(coordinates: LatLng) {
+    private fun createMarkerLugarMarcacion(coordinates: LatLng) {
         Log.println(Log.DEBUG, "localizacion", "posicion$coordinates")
         val marker: MarkerOptions =
             MarkerOptions().position(coordinates).title("Lugar de Marcacion")
@@ -383,10 +391,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     }
 
     private fun validarLugarMarcacion(lugarMarcacion: LatLng): Boolean {
-        val validar = PolyUtil.containsLocation(
+        return PolyUtil.containsLocation(
             lugarMarcacion, poligono.points, false
         )
-        return validar
     }
 
     @SuppressLint("MissingPermission")
@@ -415,19 +422,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         }
     }
 
-    private fun compruebaMarcacion(myCallBack: CallBack){
-        var aux: Boolean
-        db.collection("users").document(sp.getName())
-            .collection("marcaciones").document("Administrativo")
-            .get().addOnSuccessListener {
-
-            }
-    }
-
-    private fun generaCodigoMarcacione():String{
-        val date = Date()
-        return DateFormat.format("dd_mm_yyyy", date).toString()
-    }
 
     private fun generaMarcacion() {
         val date = Date()
@@ -439,7 +433,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
         //Toast.makeText(requireContext(), name, Toast.LENGTH_SHORT).show()
     }
 
-    private fun obtenerNameDia(date:Date):String{
+    private fun obtenerNameDia(date: Date): String {
         var dia = DateFormat.format("EEEE", date).toString()
         when (dia) {
             "Monday" -> dia = "LU"
