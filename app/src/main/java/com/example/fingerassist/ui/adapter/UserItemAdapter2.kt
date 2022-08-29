@@ -9,7 +9,7 @@ import com.example.fingerassist.Utils.User
 import com.example.fingerassist.databinding.ViewDatosBinding
 
 class UserItemAdapter2 (
-    val itemListUser: List<User>) :
+    private val itemListUser: ArrayList<User>) :
     RecyclerView.Adapter<UserItemAdapter2.UserItemViewHolder>() {
 
     class UserItemViewHolder(item: View): RecyclerView.ViewHolder(item){

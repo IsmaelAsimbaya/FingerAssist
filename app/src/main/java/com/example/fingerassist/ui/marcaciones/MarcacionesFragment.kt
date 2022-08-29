@@ -32,9 +32,6 @@ class MarcacionesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val marcacionesViewModel =
-            ViewModelProvider(this).get(MarcacionesViewModel::class.java)
-
         _binding = FragmentMarcacionesBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -53,7 +50,6 @@ class MarcacionesFragment : Fragment() {
 
     private fun initRecycler(itemView: View, myList: ArrayList<User>){
         val recyclerView = binding.recyclerView
-        //val recyclerView = itemView.findViewById(R.id.recyclerView) as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = UserItemAdapter2(myList)
         recyclerView.adapter = adapter
