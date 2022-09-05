@@ -156,10 +156,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 if (value) {
                     createMap()
                     binding.textHorario.setText(sp.getHorario())
-                    binding.textTiempTrab.setText(
-                        (obtenerHora(Date()).toIntOrNull()
-                            ?.minus(sp.getHTrabajo())).toString() + " h"
-                    )
+                    if(sp.getMarcacionesEntrada()){
+                        binding.textTiempTrab.setText(
+                            (obtenerHora(Date()).toIntOrNull()
+                                ?.minus(sp.getHTrabajo())).toString() + " h"
+                        )
+                    }
                     binding.textUltimMarc.setText(sp.getUltimaMarcacion())
                 }
             }
