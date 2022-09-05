@@ -9,6 +9,8 @@ import android.content.Context
 import com.example.fingerassist.Utils.Notificaciones.Companion.CHANNEL_ID
 import com.example.fingerassist.Utils.Notificaciones.Companion.CHANNEL_NAME
 import com.example.fingerassist.Utils.Notificaciones.Companion.priority
+import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.FirebaseFirestore
 
 class FingerAssist: Application() {
 
@@ -18,12 +20,15 @@ class FingerAssist: Application() {
         private var context: Context? = null
 
         lateinit var sp: Preferences
+
+        lateinit var db: FirebaseFirestore
     }
 
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
         sp = Preferences(applicationContext)
+        db = FirebaseFirestore.getInstance()
         addNotificationChannels()
     }
 

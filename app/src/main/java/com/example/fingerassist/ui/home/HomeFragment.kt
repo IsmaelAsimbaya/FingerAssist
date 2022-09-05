@@ -3,7 +3,6 @@ package com.example.fingerassist.ui.home
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -13,20 +12,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.fingerassist.CallBack
-import com.example.fingerassist.LoginActivity
 import com.example.fingerassist.MapsActivity
 import com.example.fingerassist.R
 import com.example.fingerassist.Utils.FingerAssist.Companion.sp
-import com.example.fingerassist.Utils.Notificaciones
+import com.example.fingerassist.Utils.FingerAssist.Companion.db
 import com.example.fingerassist.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -47,7 +43,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
     GoogleMap.OnMyLocationClickListener {
 
     private var _binding: FragmentHomeBinding? = null
-    private val db = FirebaseFirestore.getInstance()
+    //private val db = FirebaseFirestore.getInstance()
 
     // This property is only valid between onCreateView and
     // onDestroyView.

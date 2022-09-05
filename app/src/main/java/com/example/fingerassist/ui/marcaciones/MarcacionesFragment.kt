@@ -11,6 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fingerassist.CallBack
 import com.example.fingerassist.Utils.FingerAssist
+import com.example.fingerassist.Utils.FingerAssist.Companion.sp
+import com.example.fingerassist.Utils.FingerAssist.Companion.db
 import com.example.fingerassist.Utils.User
 import com.example.fingerassist.databinding.FragmentMarcacionesBinding
 import com.example.fingerassist.ui.adapter.UserItemAdapter2
@@ -25,7 +27,7 @@ class MarcacionesFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var userArrayList: ArrayList<User>
-    private val db = FirebaseFirestore.getInstance()
+    //private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +42,7 @@ class MarcacionesFragment : Fragment() {
         eventChangeListener(object : CallBack {
             override fun onCallBack(value: Boolean) {
                 if (value){
-                    initRecycler(binding.root,userArrayList)
+                    initRecycler(userArrayList)
                 }
             }
         })
@@ -48,7 +50,7 @@ class MarcacionesFragment : Fragment() {
         return root
     }
 
-    private fun initRecycler(itemView: View, myList: ArrayList<User>){
+    private fun initRecycler(myList: ArrayList<User>){
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = UserItemAdapter2(myList)
@@ -58,29 +60,22 @@ class MarcacionesFragment : Fragment() {
     private fun eventChangeListener(myCallback: CallBack){
         var aux: Boolean
 
-        db.collection("users").document(FingerAssist.sp.getName()).collection("marcaciones").addSnapshotListener(object :
-            EventListener<QuerySnapshot> {
-            override fun onEvent(value: QuerySnapshot?, error: FirebaseFirestoreException?) {
-                userArrayList = ArrayList()
-                if (error != null){
-                    Log.e("Firestore Error---", error.message.toString())
-                    return
-                }
-                for (dc : DocumentChange in value?.documentChanges!!){
-                    if (dc.type == DocumentChange.Type.ADDED){
-                        userArrayList.add(dc.document.toObject(User::class.java))
-                    }
-                }
+        db.collection("users").document(sp.getName()).collection("marcaciones").get().addOnSuccessListener {
+            //userArrayList = ArrayList()
 
-                aux = true
-                //Log.d("list",userArrayList.toString())
-                if (aux){
-                    myCallback.onCallBack(true)
-                }else{
-                    myCallback.onCallBack(false)
-                }
+            for (documento in it) {
+                userArrayList.add(documento.toObject(User::class.java))
             }
-        })
+
+            aux = true
+            //Log.d("list",userArrayList.toString())
+            if (aux) {
+                myCallback.onCallBack(true)
+            } else {
+                myCallback.onCallBack(false)
+            }
+
+        }
     }
 
     override fun onDestroyView() {
