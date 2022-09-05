@@ -77,7 +77,25 @@ class Preferences(val context: Context) {
     }
 
     fun getHorario():String{
-        return storage.getString("horario","")!!
+        return storage.getString("horario","9:00 - 19:00")!!
+    }
+
+    //horasTrabajo
+    fun saveHTrabajo(hora: Int){
+        storage.edit().putInt("horaTrabajo", hora).apply()
+    }
+
+    fun getHTrabajo():Int{
+        return storage.getInt("horaTrabajo", 0)
+    }
+
+    //ultima_marcacion
+    fun saveUltimaMarcacion(hora: String){
+        storage.edit().putString("ultMarc", hora).apply()
+    }
+
+    fun getUltimaMarcacion():String{
+        return storage.getString("ultMarc","")!!
     }
 
     //coord lugar

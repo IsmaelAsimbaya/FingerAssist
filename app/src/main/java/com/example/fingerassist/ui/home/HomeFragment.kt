@@ -91,8 +91,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                             if (!sp.getMarcacionesEntrada()) {
                                 authenticate {
                                     generaIngreso()
-                                    val hora = obtenerHora(Date()) + ":" + obtenerMinutos(Date())
-                                    binding.textUltimMarc.setText(hora)
+                                    binding.textUltimMarc.setText(sp.getUltimaMarcacion())
                                 }
                             } else {
                                 Toast.makeText(
@@ -157,7 +156,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
                 if (value) {
                     createMap()
                     binding.textHorario.setText(sp.getHorario())
-                    binding.textTiempTrab.setText("0")
+                    binding.textTiempTrab.setText(
+                        (obtenerHora(Date()).toIntOrNull()
+                            ?.minus(sp.getHTrabajo())).toString() + " h"
+                    )
+                    binding.textUltimMarc.setText(sp.getUltimaMarcacion())
                 }
             }
         })
@@ -455,6 +458,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
             .collection("marcaciones").document(sp.getCodigoFecha()).update(updates)
 
         sp.saveMarcacionEntrada(true)
+
+        sp.saveUltimaMarcacion(hora + " Ingreso")
+        sp.saveHTrabajo(obtenerHora(date).toIntOrNull()!!)
+
         Toast.makeText(requireContext(), "Registro Completado", Toast.LENGTH_SHORT).show()
     }
 
@@ -468,6 +475,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocationButto
             .collection("marcaciones").document(sp.getCodigoFecha()).update(updates)
 
         sp.saveMarcacionSalida(true)
+
+        sp.saveUltimaMarcacion(hora + " Salida")
+
         Toast.makeText(requireContext(), "Registro Completado", Toast.LENGTH_SHORT).show()
     }
 
