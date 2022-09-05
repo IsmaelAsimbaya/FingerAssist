@@ -12,7 +12,7 @@ import com.example.fingerassist.Utils.Notificaciones.Companion.priority
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 
-class FingerAssist: Application() {
+class FingerAssist : Application() {
 
     companion object {
 
@@ -42,8 +42,5 @@ class FingerAssist: Application() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(channel)
     }
-
-
-
 
 }

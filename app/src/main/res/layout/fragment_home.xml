@@ -70,14 +70,14 @@
                     android:id="@+id/textUltimMarc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="09:00 Entrada"
+                    android:text="    -"
                     android:textSize="18sp"/>
 
                 <TextView
                     android:id="@+id/textTiempTrab"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="05:06"
+                    android:text="    -"
                     android:textSize="18sp"/>
             </LinearLayout>
         </LinearLayout>

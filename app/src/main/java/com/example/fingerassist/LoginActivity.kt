@@ -33,7 +33,11 @@ class LoginActivity : AppCompatActivity() {
 
         binding.logginButton.setOnClickListener {
             if (binding.editTextTextEmailAddress.text.isNotEmpty() && binding.editTextTextPassword.text.isNotEmpty()) {
-                login(binding.editTextTextEmailAddress.text.toString(),binding.editTextTextPassword.text.toString(), sp)
+                login(
+                    binding.editTextTextEmailAddress.text.toString(),
+                    binding.editTextTextPassword.text.toString(),
+                    sp
+                )
             }
         }
     }
@@ -59,7 +63,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun checkLogin() {
-        if (sp.getRemember()){
+        if (sp.getRemember()) {
             showHome()
             finish()
         }

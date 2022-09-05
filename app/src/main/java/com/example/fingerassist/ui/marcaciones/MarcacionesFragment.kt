@@ -22,12 +22,9 @@ class MarcacionesFragment : Fragment() {
 
     private var _binding: FragmentMarcacionesBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     private lateinit var userArrayList: ArrayList<User>
-    //private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,7 +38,7 @@ class MarcacionesFragment : Fragment() {
 
         eventChangeListener(object : CallBack {
             override fun onCallBack(value: Boolean) {
-                if (value){
+                if (value) {
                     initRecycler(userArrayList)
                 }
             }
@@ -50,32 +47,27 @@ class MarcacionesFragment : Fragment() {
         return root
     }
 
-    private fun initRecycler(myList: ArrayList<User>){
+    private fun initRecycler(myList: ArrayList<User>) {
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = UserItemAdapter2(myList)
         recyclerView.adapter = adapter
     }
 
-    private fun eventChangeListener(myCallback: CallBack){
+    private fun eventChangeListener(myCallback: CallBack) {
         var aux: Boolean
-
-        db.collection("users").document(sp.getName()).collection("marcaciones").get().addOnSuccessListener {
-            //userArrayList = ArrayList()
-
-            for (documento in it) {
-                userArrayList.add(documento.toObject(User::class.java))
+        db.collection("users").document(sp.getName()).collection("marcaciones").get()
+            .addOnSuccessListener {
+                for (documento in it) {
+                    userArrayList.add(documento.toObject(User::class.java))
+                }
+                aux = true
+                if (aux) {
+                    myCallback.onCallBack(true)
+                } else {
+                    myCallback.onCallBack(false)
+                }
             }
-
-            aux = true
-            //Log.d("list",userArrayList.toString())
-            if (aux) {
-                myCallback.onCallBack(true)
-            } else {
-                myCallback.onCallBack(false)
-            }
-
-        }
     }
 
     override fun onDestroyView() {
