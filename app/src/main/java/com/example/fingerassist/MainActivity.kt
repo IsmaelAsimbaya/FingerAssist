@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             id.setText(it.get("ci") as String?)
 
             val img: ImageView = hView.findViewById(R.id.profilePic)
-            Picasso.get().load(it.get("img") as String?).resize(50, 50)
+            Picasso.get().load(it.get("img") as String?).resize(300, 300)
                 .centerCrop().into(img)
         }
 
